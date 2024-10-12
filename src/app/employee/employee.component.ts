@@ -3,6 +3,8 @@ import { AbstractControl, FormBuilder, Validators, ReactiveFormsModule } from "@
 import {EmployeeService} from "../service/employee.service";
 import { Router, RouterLink } from "@angular/router";
 import {Employee} from "../model/employee";
+import {EventEmitter, Output} from '@angular/core';
+
 
 @Component({
     selector: 'app-employee',
@@ -12,6 +14,8 @@ import {Employee} from "../model/employee";
     imports: [RouterLink, ReactiveFormsModule]
 })
 export class EmployeeComponent {
+  @Output() fireSave: EventEmitter<Employee> = new EventEmitter();
+
   private builder: FormBuilder = inject(FormBuilder);
   private employeeService: EmployeeService = inject(EmployeeService);
   private router: Router = inject(Router);
@@ -24,6 +28,8 @@ export class EmployeeComponent {
     email: ['', Validators.email]
   });
 
+  
+
   get name(): AbstractControl<string> {return <AbstractControl<string>>this.employeeForm.get('name'); }
   get dateOfBirth(): AbstractControl<string> {return <AbstractControl<string>>this.employeeForm.get('dateOfBirth'); }
   get city(): AbstractControl<string> {return <AbstractControl>this.employeeForm.get('city'); }
@@ -33,11 +39,12 @@ export class EmployeeComponent {
 
   onSubmit() {
     const employee: Employee = new Employee(this.name.value,
-      new Date(this.dateOfBirth.value),
+      this.dateOfBirth.value,
       this.city.value,
       this.salary.value,
       this.gender.value,
       this.email.value);
+
     this.employeeService.addEmployee(employee);
     this.employeeForm.reset();
     this.router.navigate(['/employees']).then(() => {});
